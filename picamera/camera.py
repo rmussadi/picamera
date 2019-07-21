@@ -981,6 +981,7 @@ class PiCamera(object):
         options.setdefault('alpha', self._preview_alpha)
         options.setdefault('fullscreen', self._preview_fullscreen)
         options.setdefault('window', self._preview_window)
+        options.setdefault('display_num', 3)
         renderer = PiPreviewRenderer(
             self, self._camera.outputs[self.CAMERA_PREVIEW_PORT], **options)
         self._preview = renderer

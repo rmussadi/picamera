@@ -68,7 +68,7 @@ class PiRenderer(object):
 
     def __init__(
             self, parent, layer=0, alpha=255, fullscreen=True, window=None,
-            crop=None, rotation=0, vflip=False, hflip=False, anamorphic=False):
+            crop=None, rotation=0, vflip=False, hflip=False, anamorphic=False, display_num=3):
         # Create and enable the renderer component
         self._rotation = 0
         self._vflip = False
@@ -77,6 +77,7 @@ class PiRenderer(object):
         try:
             self.layer = layer
             self.alpha = alpha
+            self.display_num = display_num
             self.fullscreen = fullscreen
             self.anamorphic = anamorphic
             if window is not None:
@@ -134,6 +135,23 @@ class PiRenderer(object):
 
             If the renderer is being fed RGBA data (as in partially transparent
             overlays), the alpha property will be ignored.
+        """)
+
+    def _get_display_num(self):
+        return self.renderer.inputs[0].params[mmal.MMAL_PARAMETER_DISPLAYREGION].alpha
+    def _set_display_num(self, value):
+        try:
+            if not (0 <= value <= 4):
+                raise PiCameraValueError(
+                    "Invalid display value: %d (valid range 0..255)" % value)
+        except TypeError:
+            raise PiCameraValueError("Invalid display value: %s" % value)
+        mp = self.renderer.inputs[0].params[mmal.MMAL_PARAMETER_DISPLAYREGION]
+        mp.set = mmal.MMAL_DISPLAY_SET_NUM 
+        mp.display_num = value
+        self.renderer.inputs[0].params[mmal.MMAL_PARAMETER_DISPLAYREGION] = mp
+    display_num = property(_get_display_num, _set_display_num, doc="""\
+        Retrieves or sets the display num of the renderer.
         """)
 
     def _get_layer(self):
